@@ -1,0 +1,16 @@
+version: "3.5"
+services:
+  postgres:
+    image: postgres
+    container_name: erlang-db
+    environment:
+      POSTGRES_DB: erlang
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5433:5433'
+    volumes:
+      - erlang-db:/var/lib/postgresql/data
+
+volumes:
+  erlang-db:

@@ -1,0 +1,21 @@
+{application, gen_rest_api,
+ [{description, "An OTP application"},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {mod, {gen_rest_api_app, []}},
+  {applications,
+   [kernel,
+    stdlib,
+    bcrypt,
+    bson,
+    cowboy,
+    jiffy,
+    jwerl,
+    mongodb
+   ]},
+  {env,[]},
+  {modules, []},
+
+  {licenses, ["Apache 2.0"]},
+  {links, []}
+ ]}.
