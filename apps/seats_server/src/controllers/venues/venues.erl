@@ -1,4 +1,4 @@
--module(venue).
+-module(venues).
 -export([
   init/2,
   allowed_methods/2,
@@ -12,7 +12,7 @@ init(Req0, State) ->
 	{ cowboy_rest, Req0, State }.
 
 allowed_methods(Req0, State) ->
-	{ [<<"PUT">>, <<"GET">>], Req0, State }.
+	{ [<<"POST">>, <<"GET">>], Req0, State }.
 
 content_types_accepted(Req0, State) ->
     { [ { { <<"application">>, <<"json">>, [] }, router } ], Req0, State }.
@@ -21,27 +21,26 @@ content_types_provided(Req0, State) ->
 	{ [ { { <<"application">>, <<"json">>, [] }, router } ], Req0, State }.
 
 router(Req0, State) ->
-    utils:log(),
-    Bindings     = maps:get(bindings, Req0),
-    VenueId      = maps:get(venueId, Bindings, notProvided),
-
     router(
         cowboy_req:method(Req0),
-        db:binary_string_to_objectid(VenueId),
         Req0,
         State
     ).
 
-router(<<"PUT">>, VenueId, Req0, State) ->
-    { stop, put_venue(VenueId, Req0), State };
-router(<<"GET">>, VenueId, Req0, State) ->
-    { stop, get_venue(VenueId, Req0), State }.
+router(<<"POST">>, Req0, State) ->
+    { stop, post_venue(Req0), State };
+router(<<"GET">>, Req0, State) ->
+    { stop, get_venues(Req0), State }.
 
-put_venue(VenueId, Req0) ->
+post_venue(Req0) ->
     { ok, RequestBody, _ } = utils:read_body(Req0),
-    VenueBody = jiffy:decode(RequestBody, [return_maps]),
-    Venue     = venues_service:update_one(VenueId, VenueBody),
-
+    Body          = jiffy:decode(RequestBody, [return_maps]),
+    BodyWithOwner = maps:put(
+        owner,
+        maps:get(id, maps:get(thisUser, Req0)),
+        Body
+    ),
+    Venue = venues_service:create(BodyWithOwner),
     cowboy_req:reply(
         200,
         #{ <<"content-type">> => <<"application/json">> },
@@ -49,11 +48,11 @@ put_venue(VenueId, Req0) ->
         Req0
     ).
 
-get_venue(VenueId, Req0) ->
-    Venue = venues_service:find_by_id(VenueId),
+get_venues(Req0) ->
+    Venues = venues_service:find(),
     cowboy_req:reply(
         200,
         #{ <<"content-type">> => <<"application/json">> },
-        jiffy:encode(venues_service:view(Venue)),
+        jiffy:encode(venues_service:view(Venues)),
         Req0
     ).

@@ -31,8 +31,12 @@ find_one(Query) ->
     db:find_one(<<"users">>, Query).
 
 get_jwt(User) ->
-    { _, { Id } } = maps:find(<<"_id">>, User),
-    jwerl:sign([{ id, binary_to_list(Id) }], hs256, <<"secretKey">>).
+    { ok, SecretKey } = application:get_env(seats_server, secretKey),
+    { _, Id }     = maps:find("id", User),
+    jwerl:sign([{ id, Id }], hs256, SecretKey).
 
-view(User) ->
-    maps:without([<<"_id">>, <<"password">>], User).
+view(User0) ->
+    io:format("Before ~p ~n~n", [User0]),
+    UserWithKeysAndValuesAsBinaries = utils:create_map_with_potentially_binary_keys_and_values(User0),
+    io:format("Before ~p ~n~n", [UserWithKeysAndValuesAsBinaries]),
+    maps:without(["id", "password"], UserWithKeysAndValuesAsBinaries).

@@ -23,8 +23,6 @@ content_types_provided(Req0, State) ->
 	], Req0, State}.
 
 sign_in(Req0, State) ->
-    io:format("-- ~p -- ~n", [?MODULE]),
-    io:format("-- ~p -- ~n~n", [self()]),
     { ok, RequestBody, _ } = utils:read_body(Req0),
     sign_in(RequestBody, Req0, State).
 
@@ -35,13 +33,15 @@ sign_in(RequestBody, Req0, State) ->
   % TODO: Make email and password required
     Credentials  = jiffy:decode(RequestBody, [return_maps]),
     Email        = maps:get(<<"email">>, Credentials, <<"">>),
-    Password     = maps:get(<<"password">>, Credentials),
-    ExistingUser = users_service:find_one(#{ <<"email">> => Email }),
-    ExistingPass = maps:get(<<"password">>, ExistingUser),
+    Password     = binary_to_list(maps:get(<<"password">>, Credentials)),
+    ExistingUser = users_service:find_one(#{ "email" => Email }),
+    ExistingPass = maps:get("password", ExistingUser),
 
     Req1 = sign_in(
         'passwordsMatch?',
-        utils:compare_passwords(Password, ExistingPass),
+        % utils:compare_passwords(Password, ExistingPass),
+        % TODO: Keep utils:compare_passwords when done with postgres updates
+        Password =:= ExistingPass,
         ExistingUser,
         Req0
     ),

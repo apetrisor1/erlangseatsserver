@@ -1,4 +1,4 @@
--module(gen_rest_api_app).
+-module(seats_server).
 -behaviour(application).
 
 -export([start/2]).
@@ -6,8 +6,9 @@
 
 start(_Type, _Args) ->
 	% Connect to DB
-	db:connect(localhost, 27017),
-	
+	% db:connect(localhost, 27017),
+	db:connect(),
+
 	% API routes
 	Dispatch = cowboy_router:compile([
 		{'_', [
@@ -35,7 +36,7 @@ start(_Type, _Args) ->
 			]
         }
     ),
-	gen_rest_api_sup:start_link().
+	seats_server_sup:start_link().
 
 stop(_State) ->
 	ok = cowboy:stop_listener(http).

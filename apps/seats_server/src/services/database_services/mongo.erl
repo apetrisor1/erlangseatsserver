@@ -1,5 +1,5 @@
 % Sets up mongo connection, on app start.
--module(db).
+-module(mongo).
 
 -export([
     binary_string_to_objectid/1,
@@ -19,20 +19,17 @@
 connect() ->
     connect(localhost, 27017).
 connect(_Scheme, _Port) ->
-    Database = <<"erlang">>,
+    attempt(mc_worker_api:connect ([{database, <<"erlang">>}])).
 
-    case mc_worker_api:connect ([{database, Database}]) of 
-        {ok, Connection} ->
-            io:format("MongoDB Connection is OK ~p ~n ~n", [Connection]),
-            register(database, Connection),
-            {ok, Connection};
-        _ ->
-            io:format("MongoDB Connection not established.. ~n ~n"),
-            exit(1)
-    end.
+attempt({ok, Connection}) ->
+    io:format("MongoDB Connection is OK ~p ~n ~n", [Connection]),
+    register(database, Connection),
+    {ok, Connection};
+attempt(_) ->
+    io:format("MongoDB Connection not established.. ~n ~n"),
+    exit(1).
 
 find(Collection) ->
-    utils:log(),
     io:format("Getting all ~nfrom ~p, ~nusing process ~p ~n~n", [Collection, whereis(database)]),
     case mc_worker_api:find(whereis(database), Collection, #{}) of
         []             -> [];
@@ -40,7 +37,6 @@ find(Collection) ->
     end.
 
 find(Collection, Query) ->
-    utils:log(),
     io:format("Querying ~p ~nfrom ~p, ~nusing process ~p ~n~n", [Query, Collection, whereis(database)]),
     case mc_worker_api:find(whereis(database), Collection, Query) of
         []             -> [];
@@ -48,22 +44,18 @@ find(Collection, Query) ->
     end.
 
 find_by_id(Collection, Id) ->
-    utils:log(),
     io:format("Searching for ID ~p ~nfrom ~p, ~nusing process ~p ~n~n", [Id, Collection, whereis(database)]),
     mc_worker_api:find_one(whereis(database), Collection, #{ <<"_id">> => Id }).
     
 find_one(Collection, Query) ->
-    utils:log(),
     io:format("Querying one ~p ~nfrom ~p, ~nusing process ~p ~n~n", [Query, Collection, whereis(database)]),
     mc_worker_api:find_one(whereis(database), Collection, Query).
 
 insert_one(Collection, Object) ->
-    utils:log(),
     io:format("Inserting one ~p ~ninto ~p, ~nusing process ~p ~n~n", [Object, Collection, whereis(database)]),
     mc_worker_api:insert(whereis(database), Collection, Object).
 
 update_one(Collection, Id, Object) ->
-    utils:log(),
     io:format("Updating ID ~p ~n with body ~p, ~n using process ~p ~n~n", [Id, Object, whereis(database)]),
     Command = #{ <<"$set">> => Object },
     mc_worker_api:update(whereis(database), Collection, #{ <<"_id">> => Id }, Command),

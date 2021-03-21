@@ -3,7 +3,7 @@
 %% @end
 %%%-------------------------------------------------------------------
 
--module(gen_rest_api_sup).
+-module(seats_server_sup).
 
 -behaviour(supervisor).
 

@@ -21,7 +21,6 @@ content_types_provided(Req0, State) ->
 	{ [ { { <<"application">>, <<"json">>, [] }, router } ], Req0, State }.
 
 router(Req0, State) ->
-    utils:log(),
     router(
         cowboy_req:method(Req0),
         Req0,
@@ -34,7 +33,7 @@ router(<<"GET">>, Req0, State) ->
     BindingsId   = maps:get(userId, Bindings, notProvided),
     UserId       = get_id_from_bindings(BindingsId, Req0),
 
-    VenuesAsJson = jiffy:encode(
+    VenuesOfUserAsJson = jiffy:encode(
         venues_service:view(
             venues_service:find(#{ owner => UserId })
         )
@@ -43,7 +42,7 @@ router(<<"GET">>, Req0, State) ->
     { stop, cowboy_req:reply(
         200,
         #{ <<"content-type">> => <<"application/json">> },
-        VenuesAsJson,
+        VenuesOfUserAsJson,
         Req0
     ), State }.
 

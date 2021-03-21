@@ -23,8 +23,6 @@ content_types_provided(Req0, State) ->
 	], Req0, State}.
 
 sign_up(Req0, State) ->
-    io:format("-- ~p -- ~n", [?MODULE]),
-    io:format("-- ~p -- ~n~n", [self()]),
     { ok, RequestBody, _ } = utils:read_body(Req0),
     sign_up(RequestBody, Req0, State).
 
@@ -38,16 +36,16 @@ sign_up(RequestBody, Req0, State) ->
 
     Req1 = sign_up(
         UserBody,
-        userWithThisEmail,
+        'userWithThisEmail?',
         users_service:find_one(#{ <<"email">> => Email }),
         Req0,
         State    
     ),
     { stop, Req1, State }.
 
-sign_up(UserBody, userWithThisEmail, undefined, Req0, State) ->
+sign_up(UserBody, 'userWithThisEmail?', undefined, Req0, State) ->
     allow(UserBody, Req0, State);
-sign_up(_UserBody, userWithThisEmail, _, Req0, State) ->
+sign_up(_UserBody, 'userWithThisEmail?', _, Req0, State) ->
     reject(Req0, State).
 
 allow(UserBody, Req0, _State) ->
