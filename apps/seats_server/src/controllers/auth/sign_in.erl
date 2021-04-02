@@ -39,9 +39,7 @@ sign_in(RequestBody, Req0, State) ->
 
     Req1 = sign_in(
         'passwordsMatch?',
-        % utils:compare_passwords(Password, ExistingPass),
-        % TODO: Keep utils:compare_passwords when done with postgres updates
-        Password =:= ExistingPass,
+        utils:compare_passwords(Password, ExistingPass),
         ExistingUser,
         Req0
     ),

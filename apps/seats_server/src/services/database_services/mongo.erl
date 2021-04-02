@@ -1,3 +1,4 @@
+% TODO Setup supervision, retry connect if failure
 % Sets up mongo connection, on app start.
 -module(mongo).
 
@@ -15,7 +16,6 @@
     update_one/3
 ]).
 
-% TODO Setup supervision, retry connect if failure
 connect() ->
     connect(localhost, 27017).
 connect(_Scheme, _Port) ->

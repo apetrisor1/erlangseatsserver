@@ -18,11 +18,10 @@ create(UserBody) ->
     { Password, UserWithoutPass } = maps:take(<<"password">>, UserBody),
     { ok, Salt } = bcrypt:gen_salt(),
     { ok, Hash } = bcrypt:hashpw(Password, Salt),
-    { _, User }  = db:insert_one(
+    db:insert_one(
         <<"users">>,
-        maps:put(<<"password">>, Hash, UserWithoutPass)
-    ),
-    User.
+        maps:put(<<"password">>, list_to_binary(Hash), UserWithoutPass)
+    ).
 
 find_by_id(Id) ->
     db:find_by_id(<<"users">>, Id).
@@ -31,12 +30,10 @@ find_one(Query) ->
     db:find_one(<<"users">>, Query).
 
 get_jwt(User) ->
-    { ok, SecretKey } = application:get_env(seats_server, secretKey),
-    { _, Id }     = maps:find("id", User),
+    { _, SecretKey } = application:get_env(seats_server, secretKey),
+    { _, Id }        = maps:find("id", User),
     jwerl:sign([{ id, Id }], hs256, SecretKey).
 
 view(User0) ->
-    io:format("Before ~p ~n~n", [User0]),
-    UserWithKeysAndValuesAsBinaries = utils:create_map_with_potentially_binary_keys_and_values(User0),
-    io:format("Before ~p ~n~n", [UserWithKeysAndValuesAsBinaries]),
-    maps:without(["id", "password"], UserWithKeysAndValuesAsBinaries).
+    User1 = utils:create_map_with_binary_keys_and_values(User0),
+    maps:without(["id", "password"], User1).

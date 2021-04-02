@@ -43,7 +43,7 @@ sign_up(RequestBody, Req0, State) ->
     ),
     { stop, Req1, State }.
 
-sign_up(UserBody, 'userWithThisEmail?', undefined, Req0, State) ->
+sign_up(UserBody, 'userWithThisEmail?', [], Req0, State) ->
     allow(UserBody, Req0, State);
 sign_up(_UserBody, 'userWithThisEmail?', _, Req0, State) ->
     reject(Req0, State).
