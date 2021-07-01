@@ -5,7 +5,7 @@
 -behaviour(gen_server).
 
 -export([ start_link/0, connect/0 ]).
--export([ find/1, find/2, find_one/2, insert_one/2 ]).
+-export([ find/1, find/2, find_one/2, insert_one_map/2, insert_sql_like_list/3 ]).
 -export([ init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2 ]).
 
 %%========================================================================
@@ -37,13 +37,22 @@ get_connection_string() ->
         get_db_related_env_vars()
     ).
 
-insert_one(Collection, Map) ->
+insert_one_map(Collection, Map) ->
     QueryString = (
         first_part_of_INSERT_string(Collection) ++
         last_part_of_INSERT_string(Map)
     ),
     gen_server:call({global, ?MODULE}, { QueryString }),
     find_one(Collection, Map).
+
+insert_sql_like_list(Collection, Columns, List) ->
+    QueryString = (
+        first_part_of_INSERT_string(Collection)
+    ),
+    io:format("Columns ~p~n", [Columns]),
+    io:format("List ~p~n", [List]),
+    io:format("QueryString ~p~n", [QueryString]),
+    ok.
 
 find(Collection) ->
     QueryString = first_part_of_SELECT_string(Collection),
@@ -135,7 +144,7 @@ map_from_keys_and_tuple([H|T], Tuple, Acc0, Counter) ->
   map_from_keys_and_tuple(T, Tuple, Acc1, Counter + 1).
 
 %%========================================================================
-%%          Functions to manipulate the DB query string
+%%                Functions to create DB query strings
 %%========================================================================
 %%                               SELECT
 %%========================================================================

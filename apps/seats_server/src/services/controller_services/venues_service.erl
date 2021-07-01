@@ -12,11 +12,24 @@
 create(Body) ->
     % TODO: Validate.
     % Set up a venue model that exports its' name, so we may use it as collection name.
-    { _, Venue }  = db:insert_one(
+
+    { SeatCoords, BodyWithoutSeatCoords } = maps:take(<<"seatCoords">>, Body),
+
+    % 2. Create seats
+    % db:insert_sql_like_list(
+    %     <<"coordinates">>,
+    %     [ <<"lon">>, <<"lat">> ],
+    %     SeatCoords
+    % ),
+
+    % 1. Insert venue
+    io:format("1 BodyWithoutSeatCoords ~p~n", [BodyWithoutSeatCoords]),
+    { _, Venue }  = db:insert_one_map(
         <<"venues">>,
-        Body
+        BodyWithoutSeatCoords
     ),
-    Venue.
+    io:format("Venue ~p~n", [Venue]),
+    ok.
 
 find() ->
     db:find(<<"venues">>).

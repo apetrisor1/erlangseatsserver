@@ -33,32 +33,42 @@ sign_in(RequestBody, Req0, State) ->
   % TODO: Make email and password required
     Credentials  = jiffy:decode(RequestBody, [return_maps]),
     Email        = maps:get(<<"email">>, Credentials, <<"">>),
-    Password     = binary_to_list(maps:get(<<"password">>, Credentials)),
-    ExistingUser = users_service:find_one(#{ "email" => Email }),
-    ExistingPass = maps:get("password", ExistingUser),
-
     Req1 = sign_in(
+        'existingUser?',
+        users_service:find_one(#{ "email" => Email }),
+        Credentials,
+        Req0,
+        State
+    ),
+    { stop, Req1, State }.
+
+sign_in('existingUser?', [], _Credentials, Req0, _State) ->
+    respond_401(Req0),
+    Req0;
+sign_in('existingUser?', ExistingUser, Credentials, Req0, _State) ->
+    Password     = binary_to_list(maps:get(<<"password">>, Credentials)),
+    ExistingPass = maps:get("password", ExistingUser),
+    sign_in(
         'passwordsMatch?',
         utils:compare_passwords(Password, ExistingPass),
         ExistingUser,
         Req0
-    ),
-    { stop, Req1, State }.
+    ).
 
 sign_in('passwordsMatch?', false, _, Req0) ->
-    cowboy_req:reply(401, #{
-        <<"content-type">> => <<"application/json">>
-    },
-    jiffy:encode({[
-        { error, <<"Wrong email/password">> }
-    ]})
-    , Req0);
+    respond_401(Req0),
+    Req0;
 sign_in('passwordsMatch?', true, User, Req0) ->
-  cowboy_req:reply(200, #{
-        <<"content-type">> => <<"application/json">>
-    },
-    jiffy:encode({[
-        { token, users_service:get_jwt(User) },
-        { user, users_service:view(User) } 
-    ]})
+    cowboy_req:reply(200, #{ <<"content-type">> => <<"application/json">> },
+        jiffy:encode({[
+            { token, users_service:get_jwt(User) },
+            { user, users_service:view(User) } 
+        ]})
+    , Req0).
+
+respond_401(Req0) ->
+    cowboy_req:reply(401, #{ <<"content-type">> => <<"application/json">> },
+        jiffy:encode({[
+            { error, <<"Wrong email/password">> }
+        ]})
     , Req0).

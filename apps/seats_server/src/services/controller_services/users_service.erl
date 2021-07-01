@@ -18,7 +18,7 @@ create(UserBody) ->
     { Password, UserWithoutPass } = maps:take(<<"password">>, UserBody),
     { ok, Salt } = bcrypt:gen_salt(),
     { ok, Hash } = bcrypt:hashpw(Password, Salt),
-    db:insert_one(
+    db:insert_one_map(
         <<"users">>,
         maps:put(<<"password">>, list_to_binary(Hash), UserWithoutPass)
     ).
@@ -36,4 +36,4 @@ get_jwt(User) ->
 
 view(User0) ->
     User1 = utils:create_map_with_binary_keys_and_values(User0),
-    maps:without(["id", "password"], User1).
+    maps:without([<<"id">>, <<"password">>], User1).
