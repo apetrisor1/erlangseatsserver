@@ -13,7 +13,7 @@ create(Body) ->
     % TODO: Validate.
     % Set up a venue model that exports its' name, so we may use it as collection name.
 
-    { SeatCoords, BodyWithoutSeatCoords } = maps:take(<<"seatCoords">>, Body),
+    { SeatCoords, BodyWithoutSeatCoords } = maps:take(<<"seat_coords">>, Body),
 
     % 2. Create seats
     % db:insert_sql_like_list(

@@ -59,7 +59,7 @@ The driver also gets the name declared in square brackets, to be used next.
 erlang-db-data-source = "Postgresql database for my Erlang App"
 
 [erlang-db-data-source]
-Driver = PostgreSQL ANSI
+Driver = PostgreSQL Unicode
 Description = PostgreSQL Data Source
 Servername = localhost
 Port = 5432
