@@ -30,7 +30,7 @@ find_one(Query) ->
     db:find_one(<<"users">>, Query).
 
 get_jwt(User) ->
-    { _, SecretKey } = application:get_env(seats_server, secretKey),
+    { _, SecretKey } = application:get_env(venues_configurator, secretKey),
     { _, Id }        = maps:find("id", User),
     jwerl:sign([{ id, Id }], hs256, SecretKey).
 

@@ -23,14 +23,14 @@ select_strategy('isMasterKeyProtected?', false, Req0, State) ->
 
 master_key(Req0, State) ->
     { bearer, Token } = cowboy_req:parse_header(<<"authorization">>, Req0),
-    { ok, MasterKey } = application:get_env(seats_server, masterKey),
+    { ok, MasterKey } = application:get_env(venues_configurator, masterKey),
     authenticate_master_key(Token =:= MasterKey, Req0, State).
 
 jwt(Req0, State) ->
     jwt(cowboy_req:parse_header(<<"authorization">>, Req0), Req0, State).
 
 jwt({ bearer, Token }, Req0, State) ->
-    { ok, SecretKey } = application:get_env(seats_server, secretKey),
+    { ok, SecretKey } = application:get_env(venues_configurator, secretKey),
     Content = jwerl:verify(Token, hs256, SecretKey),
     authenticate_jwt(Content, Req0, State);
 jwt(_, Req0, _State) ->

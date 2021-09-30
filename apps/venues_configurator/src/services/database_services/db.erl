@@ -23,9 +23,9 @@ attempt(_) ->
     exit(1).
 
 get_db_related_env_vars() ->
-    { ok, DSN }              = application:get_env(seats_server, dataSourceName),
-    { ok, PostgresUser }     = application:get_env(seats_server, postgresUser),
-    { ok, PostgresPassword } = application:get_env(seats_server, postgresPassword),
+    { ok, DSN }              = application:get_env(venues_configurator, dataSourceName),
+    { ok, PostgresUser }     = application:get_env(venues_configurator, postgresUser),
+    { ok, PostgresPassword } = application:get_env(venues_configurator, postgresPassword),
     [ DSN, PostgresUser, PostgresPassword ].
 
 get_connection_string() ->

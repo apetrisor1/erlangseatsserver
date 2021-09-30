@@ -3,7 +3,7 @@
 %% @end
 %%%-------------------------------------------------------------------
 
--module(seats_server_sup).
+-module(venues_configurator_sup).
 
 -behaviour(supervisor).
 
