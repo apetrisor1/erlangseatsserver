@@ -35,25 +35,21 @@ router(<<"GET">>, Req0, State) ->
 post_venue(Req0) ->
     { ok, RequestBody, _ } = utils:read_body(Req0),
     Body = jiffy:decode(RequestBody, [return_maps]),
-    Owner = maps:get(id, maps:get(thisUser, Req0)),
-    io:format("Owner ~n~p", [Owner]),
-    io:format("Owner ~n~p", [Owner]),
-    io:format("Owner ~n~p", [Owner]),
-    BodyWithOwner = maps:put(
+
+    VenueBody = maps:put(
         <<"owner_id">>,
         maps:get(id, maps:get(thisUser, Req0)),
         Body
     ),
-    Venue = venues_service:create(BodyWithOwner),
-    io:format("8 Venue ~p ~n", [Venue]),
 
-    ok.
-    % cowboy_req:reply(
-    %     200,
-    %     #{ <<"content-type">> => <<"application/json">> },
-    %     jiffy:encode(venues_service:view(Venue)),
-    %     Req0
-    % ).
+    Venue = venues_service:create(VenueBody),
+
+    cowboy_req:reply(
+        200,
+        #{ <<"content-type">> => <<"application/json">> },
+        jiffy:encode(venues_service:view(Venue)),
+        Req0
+    ).
 
 get_venues(Req0) ->
     Venues = venues_service:find(),

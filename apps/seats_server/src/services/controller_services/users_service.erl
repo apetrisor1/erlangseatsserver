@@ -24,7 +24,7 @@ create(UserBody) ->
     ).
 
 find_by_id(Id) ->
-    db:find_by_id(<<"users">>, Id).
+    db:find_one(<<"users">>, #{ id => Id }).
 
 find_one(Query) ->
     db:find_one(<<"users">>, Query).
@@ -36,4 +36,4 @@ get_jwt(User) ->
 
 view(User0) ->
     User1 = utils:create_map_with_binary_keys_and_values(User0),
-    maps:without([<<"id">>, <<"password">>], User1).
+    maps:without([<<"password">>], User1).

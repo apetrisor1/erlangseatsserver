@@ -5,11 +5,8 @@
 -export([stop/1]).
 
 start(_Type, _Args) ->
-	% Connect to DB
-	% db:connect(localhost, 27017),
 	db:connect(),
 
-	% API routes
 	Dispatch = cowboy_router:compile([
 		{'_', [
 			% JWT
@@ -31,7 +28,7 @@ start(_Type, _Args) ->
 			},
             middlewares => [
 				cowboy_router,
-				authorization,
+				authorization, % Choice of authentication strategy is done here
 				cowboy_handler
 			]
         }

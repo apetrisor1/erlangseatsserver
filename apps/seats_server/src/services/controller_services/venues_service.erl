@@ -12,24 +12,12 @@
 create(Body) ->
     % TODO: Validate.
     % Set up a venue model that exports its' name, so we may use it as collection name.
-
     { SeatCoords, BodyWithoutSeatCoords } = maps:take(<<"seat_coords">>, Body),
+    
+    Venue = db:insert_one_map(<<"venues">>, BodyWithoutSeatCoords ),
+    Seats = seats_service:create_multiple_seats(Venue, SeatCoords),
 
-    % 2. Create seats
-    % db:insert_sql_like_list(
-    %     <<"coordinates">>,
-    %     [ <<"lon">>, <<"lat">> ],
-    %     SeatCoords
-    % ),
-
-    % 1. Insert venue
-    io:format("1 BodyWithoutSeatCoords ~p~n", [BodyWithoutSeatCoords]),
-    { _, Venue }  = db:insert_one_map(
-        <<"venues">>,
-        BodyWithoutSeatCoords
-    ),
-    io:format("Venue ~p~n", [Venue]),
-    ok.
+    maps:put("seats", {seats, Seats}, Venue).
 
 find() ->
     db:find(<<"venues">>).
@@ -38,15 +26,17 @@ find(Query) ->
     db:find(<<"venues">>, Query).
 
 find_by_id(Id) ->
-    db:find_by_id(<<"venues">>, Id).
+    db:find_one(<<"venues">>, #{ id => Id }).
 
 find_one(Query) ->
     db:find_one(<<"venues">>, Query).
 
+% BROKEN - MISSING DB HANDLER
 update_one(Id, Body) ->
     db:update_one(<<"venues">>, Id, Body).
 
 view(Venues) when is_list(Venues) ->
     lists:map(fun(Venue) -> view(Venue) end, Venues);
-view(Venue) ->
-    maps:without([<<"_id">>, <<"owner">>], Venue).
+view(Venue0) ->
+    Venue1 = utils:create_map_with_binary_keys_and_values(Venue0),
+    maps:without([], Venue1).

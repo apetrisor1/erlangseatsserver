@@ -1,96 +1,120 @@
+% Sets up PostgreSQL connection, on app start.
 % TODO Setup supervision, retry connect if failure
-% Sets up mongo connection, on app start.
 -module(db).
 
--export([
-    binary_string_to_objectid/1,
-    connect/0,
-    connect/2,
-    find/1,
-    find/2,
-    find_by_id/2,
-    find_one/2,
-    insert_one/2,
-    object_id_to_list/1,
-    objectid_to_binary_string/1,
-    update_one/3
-]).
+-behaviour(gen_server).
 
+-export([ start_link/0, connect/0 ]).
+-export([ find/1, find/2, find_one/2, insert_one_map/2, insert_sql_like_list/3 ]).
+-export([ init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2 ]).
+
+%%========================================================================
+%%                  Client calls
+%%========================================================================
 connect() ->
-    connect(localhost, 27017).
-connect(_Scheme, _Port) ->
-    attempt(mc_worker_api:connect ([{database, <<"erlang">>}])).
+    start_link().
+connect(toDatabase) ->
+    odbc:start(),
+    attempt(odbc:connect(get_connection_string(),[])).
 
-attempt({ok, Connection}) ->
-    io:format("MongoDB Connection is OK ~p ~n ~n", [Connection]),
+attempt({ ok, Connection }) ->
+    io:format("PostgreSQL Connection is OK ~p ~n ~n", [Connection]),
     register(database, Connection),
-    {ok, Connection};
+    { ok, Connection };
 attempt(_) ->
-    io:format("MongoDB Connection not established.. ~n ~n"),
+    io:format("PostgreSQL Connection not established.. ~n ~n"),
     exit(1).
 
+get_db_related_env_vars() ->
+    { ok, DSN }              = application:get_env(seats_server, dataSourceName),
+    { ok, PostgresUser }     = application:get_env(seats_server, postgresUser),
+    { ok, PostgresPassword } = application:get_env(seats_server, postgresPassword),
+    [ DSN, PostgresUser, PostgresPassword ].
+
+get_connection_string() ->
+    utils:interpolate_variables_in_string(
+        "DSN=~s;UID=~s;PWD=~s;", 
+        get_db_related_env_vars()
+    ).
+
+insert_one_map(Collection, Map) ->
+    QueryString = (
+        db_utils:first_part_of_INSERT(Collection) ++
+        db_utils:last_part_of_INSERT_MAP(Map) ++
+        db_utils:last_part_RETURNING_ALL()
+    ),
+    RawSQLData = gen_server:call({global, ?MODULE}, { QueryString }),
+    [DataAsMaps] = db_utils:turn_data_into_maps(RawSQLData),
+    DataAsMaps.
+
+insert_sql_like_list(Collection, ColumnNamesList, RowsMatrix) ->
+    QueryString = (
+        db_utils:first_part_of_INSERT(Collection) ++
+        db_utils:last_part_of_INSERT_LIST(ColumnNamesList, RowsMatrix) ++
+        db_utils:last_part_RETURNING_ALL()
+    ),
+    RawSQLData = gen_server:call({global, ?MODULE}, { QueryString }),
+    DataAsMaps = db_utils:turn_data_into_maps(RawSQLData),
+    DataAsMaps.
+
 find(Collection) ->
-    io:format("Getting all ~nfrom ~p, ~nusing process ~p ~n~n", [Collection, whereis(database)]),
-    case mc_worker_api:find(whereis(database), Collection, #{}) of
-        []             -> [];
-        { ok, Cursor } -> mc_cursor:rest(Cursor)
-    end.
+    QueryString = db_utils:first_part_of_SELECT(Collection),
+    RawSQLData = gen_server:call({global, ?MODULE}, { QueryString }),
+    DataAsMaps = db_utils:turn_data_into_maps(RawSQLData),
+    DataAsMaps.
 
 find(Collection, Query) ->
-    io:format("Querying ~p ~nfrom ~p, ~nusing process ~p ~n~n", [Query, Collection, whereis(database)]),
-    case mc_worker_api:find(whereis(database), Collection, Query) of
-        []             -> [];
-        { ok, Cursor } -> mc_cursor:rest(Cursor)
-    end.
+    QueryAsList = maps:fold(fun(K, V, Acc) -> [K,V|Acc] end, [], Query),
+    QueryString = (
+        db_utils:first_part_of_SELECT(Collection) ++
+        db_utils:last_part_of_SELECT(QueryAsList)
+    ),
+    RawSQLData = gen_server:call({global, ?MODULE}, { QueryString }),
+    DataAsMaps = db_utils:turn_data_into_maps(RawSQLData),
+    DataAsMaps.
 
-find_by_id(Collection, Id) ->
-    io:format("Searching for ID ~p ~nfrom ~p, ~nusing process ~p ~n~n", [Id, Collection, whereis(database)]),
-    mc_worker_api:find_one(whereis(database), Collection, #{ <<"_id">> => Id }).
-    
 find_one(Collection, Query) ->
-    io:format("Querying one ~p ~nfrom ~p, ~nusing process ~p ~n~n", [Query, Collection, whereis(database)]),
-    mc_worker_api:find_one(whereis(database), Collection, Query).
+    QueryAsList = maps:fold(fun(K, V, Acc) -> [K,V|Acc] end, [], Query),
+    QueryString = (
+        db_utils:first_part_of_SELECT(Collection) ++
+        db_utils:last_part_of_SELECT(QueryAsList) ++
+        db_utils:limit_one_SELECT()
+    ),
+    RawSQLData = gen_server:call({global, ?MODULE}, { QueryString }),
+    DataAsMaps = db_utils:turn_data_into_maps(RawSQLData),
+    utils:shift(DataAsMaps).
 
-insert_one(Collection, Object) ->
-    io:format("Inserting one ~p ~ninto ~p, ~nusing process ~p ~n~n", [Object, Collection, whereis(database)]),
-    mc_worker_api:insert(whereis(database), Collection, Object).
+%%========================================================================
+%%                  Call back functions
+%%========================================================================
+start_link() ->
+    gen_server:start_link({global, ?MODULE}, ?MODULE, [], []).
 
-update_one(Collection, Id, Object) ->
-    io:format("Updating ID ~p ~n with body ~p, ~n using process ~p ~n~n", [Id, Object, whereis(database)]),
-    Command = #{ <<"$set">> => Object },
-    mc_worker_api:update(whereis(database), Collection, #{ <<"_id">> => Id }, Command),
-    mc_worker_api:find_one(whereis(database), Collection, #{ <<"_id">> => Id }).
+init(_Args) ->
+    process_flag(trap_exit, true),
+    connect(toDatabase),
+    State = [],
+    {ok, State}.
 
-% AUX - MONGO DB OBJECT ID FORMAT
-% https://stackoverflow.com/questions/10383395/how-to-convert-objectid-to-binary-subtype-3-uuid-with-mongodb-erlang-and-bson
-
-%%This method is used to generate ObjectId from binary string.
-binary_string_to_objectid(BinaryString) ->
-    binary_string_to_objectid(BinaryString, []).
-
-binary_string_to_objectid(<<>>, Result) ->
-    {list_to_binary(lists:reverse(Result))};
-binary_string_to_objectid(<<BS:2/binary, Bin/binary>>, Result) ->
-    binary_string_to_objectid(Bin, [erlang:binary_to_integer(BS, 16)|Result]).
-
-%%This method is used to generate a list from the above generated ObjectID.
-object_id_to_list(Id) ->
-    { Id1 } = binary_string_to_objectid(Id),
-    binary_to_list(Id1).
-
-%%This method is used to generate binary string from objectid.
-objectid_to_binary_string({Id}) ->
-    objectid_to_binary_string(Id, []).
-
-objectid_to_binary_string(<<>>, Result) ->
-    list_to_binary(lists:reverse(Result));
-objectid_to_binary_string(<<Hex:8, Bin/binary>>, Result) ->
-    StringList1 = erlang:integer_to_list(Hex, 16),
-    StringList2 = case erlang:length(StringList1) of
-        1 ->
-            ["0"|StringList1];
-        _ ->
-            StringList1
+% Calls DB
+handle_call(Request, { From, _ }, State) ->
+    Data = case Request of
+        { SQLParamedQuery, SQLQueryParams } ->
+            odbc:param_query(whereis(database), SQLParamedQuery, SQLQueryParams);
+        { SQLQuery } ->
+            io:format("~nDB Call from: ~p~n", [From]),
+            io:format("Query: ~p~n", [SQLQuery]),
+            odbc:sql_query(whereis(database), SQLQuery)
     end,
-    objectid_to_binary_string(Bin, [StringList2|Result]).
+    {reply, Data, State}.
 
+handle_cast(Request, State) ->
+    io:format("handle cast request: ~p~n", [Request]),
+    {noreply, State}.
+
+handle_info(Info, State) ->
+    io:format("handle_info request: ~p~n", [Info]),
+    {noreply, State}.
+
+terminate(_Reason, _State) ->
+    ok.

@@ -26,7 +26,7 @@ router(Req0, State) ->
 
     router(
         cowboy_req:method(Req0),
-        db:binary_string_to_objectid(VenueId),
+        VenueId,
         Req0,
         State
     ).

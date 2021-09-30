@@ -39,7 +39,8 @@ authenticate_master_key(false, Req0, _) ->
     { stop, Req }.
 
 authenticate_jwt({ ok, User }, Req0, State) ->
-    { ok, maps:put(thisUser, User, Req0), State };
+    UserWithStringId = maps:put(id, integer_to_list(maps:get(id, User)), User),
+    { ok, maps:put(thisUser, UserWithStringId, Req0), State };
 authenticate_jwt(_, Req0, _) ->
     Req1 = cowboy_req:reply(401, Req0),
     { stop, Req1 }.

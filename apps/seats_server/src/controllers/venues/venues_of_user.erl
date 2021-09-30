@@ -35,7 +35,7 @@ router(<<"GET">>, Req0, State) ->
 
     VenuesOfUserAsJson = jiffy:encode(
         venues_service:view(
-            venues_service:find(#{ owner => UserId })
+            venues_service:find(#{ owner_id => UserId })
         )
     ),
 
@@ -49,4 +49,4 @@ router(<<"GET">>, Req0, State) ->
 get_id_from_bindings(<<"me">>, Req0) ->
     maps:get(id, maps:get(thisUser, Req0));
 get_id_from_bindings(UserId, _) ->
-    db:object_id_to_list(UserId).
+    UserId.
