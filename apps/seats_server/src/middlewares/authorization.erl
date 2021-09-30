@@ -27,10 +27,15 @@ master_key(Req0, State) ->
     authenticate_master_key(Token =:= MasterKey, Req0, State).
 
 jwt(Req0, State) ->
-    { bearer, Token } = cowboy_req:parse_header(<<"authorization">>, Req0),
+    jwt(cowboy_req:parse_header(<<"authorization">>, Req0), Req0, State).
+
+jwt({ bearer, Token }, Req0, State) ->
     { ok, SecretKey } = application:get_env(seats_server, secretKey),
     Content = jwerl:verify(Token, hs256, SecretKey),
-    authenticate_jwt(Content, Req0, State).
+    authenticate_jwt(Content, Req0, State);
+jwt(_, Req0, _State) ->
+    Req = cowboy_req:reply(401, Req0),
+    { stop, Req }.
 
 authenticate_master_key(true, Req0, State) ->
     { ok, Req0, State };

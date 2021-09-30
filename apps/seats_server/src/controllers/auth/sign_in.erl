@@ -34,8 +34,6 @@ sign_in(RequestBody, Req0, State) ->
     Credentials  = jiffy:decode(RequestBody, [return_maps]),
     Email        = maps:get(<<"email">>, Credentials, <<"">>),
 
-    io:format("~p~n~p~n", [Credentials, Email]),
-
     Req1 = sign_in(
         'existingUser?',
         users_service:find_one(#{ "email" => Email }),

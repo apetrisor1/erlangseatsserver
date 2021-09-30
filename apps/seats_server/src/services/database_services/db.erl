@@ -8,9 +8,6 @@
 -export([ find/1, find/2, find_one/2, insert_one_map/2, insert_sql_like_list/3 ]).
 -export([ init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2 ]).
 
-%%========================================================================
-%%                  Client calls
-%%========================================================================
 connect() ->
     start_link().
 connect(toDatabase) ->
@@ -37,6 +34,9 @@ get_connection_string() ->
         get_db_related_env_vars()
     ).
 
+%%========================================================================
+%%                  Client calls
+%%========================================================================
 insert_one_map(Collection, Map) ->
     QueryString = (
         db_utils:first_part_of_INSERT(Collection) ++
