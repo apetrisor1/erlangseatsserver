@@ -6,6 +6,7 @@
     find_by_id/1,
     find_one/1,
     update_one/2,
+    populate/2,
     view/1
 ]).
 
@@ -34,6 +35,15 @@ find_one(Query) ->
 % BROKEN - MISSING DB HANDLER
 update_one(Id, Body) ->
     db:update_one(<<"venues">>, Id, Body).
+
+populate([], seats) ->
+    [];
+populate([H|T], seats) ->
+    [populate(H, seats)] ++ populate(T, seats);
+populate(Venue, seats) -> 
+    VenueId = maps:get("id", Venue),
+    Seats = seats_service:find(#{ venue_id => VenueId }),
+    maps:put("seats", {seats, Seats}, Venue).
 
 view(Venues) when is_list(Venues) ->
     lists:map(fun(Venue) -> view(Venue) end, Venues);

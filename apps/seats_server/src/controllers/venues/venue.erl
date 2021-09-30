@@ -50,9 +50,11 @@ put_venue(VenueId, Req0) ->
 
 get_venue(VenueId, Req0) ->
     Venue = venues_service:find_by_id(VenueId),
+    VenueWithSeats = venues_service:populate(Venue, seats),
+
     cowboy_req:reply(
         200,
         #{ <<"content-type">> => <<"application/json">> },
-        jiffy:encode(venues_service:view(Venue)),
+        jiffy:encode(venues_service:view(VenueWithSeats)),
         Req0
     ).

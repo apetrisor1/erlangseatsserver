@@ -3,14 +3,6 @@ Build
 
     $ rebar3 shell
 
-
-Databases
------
-
-# Mongo:
-
-Make sure mongo daemon is running locally, connect(localhost, 27017) in db.erl
-
 # Postgres:
 
 1. Start PostgreSQL via docker
@@ -73,7 +65,7 @@ Notice how this file points to the driver using the name declared in square brac
 5. To test the connection, you can use the Erlang API, see section 2.2 from
 https://erlang.org/doc/apps/odbc/getting_started.html
 
-For now we will use this API when connecting the main app, seems robust enough.
+For now we will use this API when connecting the main app robust.
 An alternative is using this:
 https://github.com/epgsql/epgsql
 

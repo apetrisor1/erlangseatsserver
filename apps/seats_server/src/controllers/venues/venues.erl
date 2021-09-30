@@ -53,9 +53,11 @@ post_venue(Req0) ->
 
 get_venues(Req0) ->
     Venues = venues_service:find(),
+    VenuesWithSeats = venues_service:populate(Venues, seats),
+
     cowboy_req:reply(
         200,
         #{ <<"content-type">> => <<"application/json">> },
-        jiffy:encode(venues_service:view(Venues)),
+        jiffy:encode(venues_service:view(VenuesWithSeats)),
         Req0
     ).

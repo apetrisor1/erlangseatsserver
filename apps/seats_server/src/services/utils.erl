@@ -13,7 +13,8 @@
     log_one_line/2,
     read_body/1,
     remove_trailing_coma/1,
-    shift/1 
+    shift/1,
+    to_string/1
 ]).
 
 %%========================================================================
@@ -33,6 +34,20 @@ create_map_with_binary_keys_and_values(Map0) ->
         #{},
         Map0
     ).
+
+replace_lists_with_binaries(K0, V0, Acc0) ->
+    K1 = maybe_list_to_binary(K0),
+    V1 = maybe_list_to_binary(V0),
+    maps:put(K1, V1, Acc0).
+
+% Populated views
+maybe_list_to_binary({seats, V}) ->
+    seats_service:view(V);
+% Regular views
+maybe_list_to_binary(V) when is_list(V) ->
+    list_to_binary(V);
+maybe_list_to_binary(V) ->
+    V.
 
 compare_passwords(P1, P2) ->
     { ok, P2 } =:= bcrypt:hashpw(P1, P2).
@@ -89,21 +104,11 @@ read_body(Req0, Acc) ->
 remove_trailing_coma(List) ->
     lists:reverse(lists:delete($,,lists:reverse(List))).
 
-replace_lists_with_binaries(K0, V0, Acc0) ->
-    K1 = maybe_list_to_binary(K0),
-    V1 = maybe_list_to_binary(V0),
-    maps:put(K1, V1, Acc0).
-
-% Populated views
-maybe_list_to_binary({seats, V}) ->
-    seats_service:view(V);
-% Regular views
-maybe_list_to_binary(V) when is_list(V) ->
-    list_to_binary(V);
-maybe_list_to_binary(V) ->
-    V.
-
 shift([H|_]) ->
     H;
 shift([]) ->
     [].
+
+to_string(A) when is_number(A) ->
+    integer_to_list(A);
+to_string(A) -> A.

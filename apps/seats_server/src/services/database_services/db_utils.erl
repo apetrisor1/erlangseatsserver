@@ -53,12 +53,12 @@ first_part_of_SELECT(Collection) ->
 next_part_of_SELECT_string([]) ->
     "";
 next_part_of_SELECT_string([H1, H2]) ->
-    utils:interpolate_variables_in_string(" AND ~s = '~s'", [H1,H2]);
+    utils:interpolate_variables_in_string(" AND ~s = '~s'", [utils:to_string(H1), utils:to_string(H2)]);
 next_part_of_SELECT_string([H1, H2|T]) ->
     next_part_of_SELECT_string([H1, H2]) ++ next_part_of_SELECT_string(T).
 
 last_part_of_SELECT([H1, H2|T]) ->
-  utils:interpolate_variables_in_string(" WHERE ~s = '~s'", [H1, H2]) ++ next_part_of_SELECT_string(T).
+  utils:interpolate_variables_in_string(" WHERE ~s = '~s'", [utils:to_string(H1), utils:to_string(H2)]) ++ next_part_of_SELECT_string(T).
 
 limit_one_SELECT() ->
     " limit 1".

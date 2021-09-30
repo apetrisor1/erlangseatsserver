@@ -35,7 +35,10 @@ router(<<"GET">>, Req0, State) ->
 
     VenuesOfUserAsJson = jiffy:encode(
         venues_service:view(
-            venues_service:find(#{ owner_id => UserId })
+            venues_service:populate(
+                venues_service:find(#{ owner_id => UserId }),
+                seats
+            )
         )
     ),
 
