@@ -45,8 +45,8 @@ sign_up(RequestBody, Req0, State) ->
 
 sign_up(UserBody, 'userWithThisEmail?', [], Req0, State) ->
     allow(UserBody, Req0, State);
-sign_up(_UserBody, 'userWithThisEmail?', _, Req0, State) ->
-    reject(Req0, State).
+sign_up(_UserBody, 'userWithThisEmail?', _, Req0, _State) ->
+    error_responses:reject_409_with_message(Req0, <<"Email already exists">>).
 
 allow(UserBody, Req0, _State) ->
     NewUser = users_service:create(UserBody),
@@ -57,13 +57,3 @@ allow(UserBody, Req0, _State) ->
     cowboy_req:reply(200, #{
         <<"content-type">> => <<"application/json">>
     }, Response, Req0).
-
-reject(Req0, _State) ->
-    ResponseBody = jiffy:encode({[
-        { error, <<"Email already exists">> }
-    ]}),
-
-    cowboy_req:reply(409, #{
-        <<"content-type">> => <<"application/json">>
-    }, ResponseBody, Req0).
-

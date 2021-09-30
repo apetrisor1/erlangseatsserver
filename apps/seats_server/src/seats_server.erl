@@ -11,6 +11,7 @@ start(_Type, _Args) ->
 		{'_', [
 			% JWT
 			{"/users", users, []},
+			{"/users/:userId", user, []},
 			{"/users/:userId/venues", venues_of_user, []},
 			{"/venues/:venueId", venue, []},
 			{"/venues", venues, []},

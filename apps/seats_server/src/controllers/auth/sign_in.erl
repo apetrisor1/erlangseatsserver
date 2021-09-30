@@ -44,7 +44,7 @@ sign_in(RequestBody, Req0, State) ->
     { stop, Req1, State }.
 
 sign_in('existingUser?', [], _Credentials, Req0, _State) ->
-    respond_401(Req0),
+    error_responses:respond_401(Req0),
     Req0;
 sign_in('existingUser?', ExistingUser, Credentials, Req0, _State) ->
     Password     = binary_to_list(maps:get(<<"password">>, Credentials)),
@@ -57,7 +57,7 @@ sign_in('existingUser?', ExistingUser, Credentials, Req0, _State) ->
     ).
 
 sign_in('passwordsMatch?', false, _, Req0) ->
-    respond_401(Req0),
+    error_responses:respond_401(Req0),
     Req0;
 sign_in('passwordsMatch?', true, User, Req0) ->
     cowboy_req:reply(200, #{ <<"content-type">> => <<"application/json">> },
@@ -67,9 +67,3 @@ sign_in('passwordsMatch?', true, User, Req0) ->
         ]})
     , Req0).
 
-respond_401(Req0) ->
-    cowboy_req:reply(401, #{ <<"content-type">> => <<"application/json">> },
-        jiffy:encode({[
-            { error, <<"Wrong email/password">> }
-        ]})
-    , Req0).

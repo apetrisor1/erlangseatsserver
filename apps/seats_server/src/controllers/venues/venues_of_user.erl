@@ -28,26 +28,27 @@ router(Req0, State) ->
     ).
 
 router(<<"GET">>, Req0, State) ->
-    % TODO : Throw err if ID = notProvided
-    Bindings     = maps:get(bindings, Req0),
-    BindingsId   = maps:get(userId, Bindings, notProvided),
-    UserId       = get_id_from_bindings(BindingsId, Req0),
+    Bindings = maps:get(bindings, Req0),
+    BindingsId = maps:get(userId, Bindings, notProvided),
 
-    VenuesOfUserAsJson = jiffy:encode(
-        venues_service:view(
-            venues_service:populate(
-                venues_service:find(#{ owner_id => UserId }),
-                seats
-            )
-        )
-    ),
+    case get_id_from_bindings(BindingsId, Req0) of
+        <<>> -> error_responses:respond_400(Req0);
+        UserId    ->  VenuesOfUserAsJson = jiffy:encode(
+                    venues_service:view(
+                        venues_service:populate(
+                            venues_service:find(#{ owner_id => UserId }),
+                            seats
+                        )
+                    )
+                ),
 
-    { stop, cowboy_req:reply(
-        200,
-        #{ <<"content-type">> => <<"application/json">> },
-        VenuesOfUserAsJson,
-        Req0
-    ), State }.
+                { stop, cowboy_req:reply(
+                    200,
+                    #{ <<"content-type">> => <<"application/json">> },
+                    VenuesOfUserAsJson,
+                    Req0
+                ), State }
+    end.
 
 get_id_from_bindings(<<"me">>, Req0) ->
     maps:get(id, maps:get(thisUser, Req0));

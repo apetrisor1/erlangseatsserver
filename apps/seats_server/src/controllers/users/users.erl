@@ -24,7 +24,7 @@ content_types_provided(Req0, State) ->
 
 % TODO Users controllers
 get_json(Req0, State) ->
-    { <<"{\"rest\": \"Getting stuff!\"}">>, Req0, State }.
+    { <<"{\"rest\": \"Getting users!\"}">>, Req0, State }.
 
 post_json(Req0, State) ->
     { true, Req0, State }.
