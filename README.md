@@ -71,3 +71,12 @@ https://github.com/epgsql/epgsql
 
 For the value of DSN, you will use the name declared in 4.
 ```{ok, Ref} = odbc:connect("DSN=erlang-db-data-source;UID=postgres;PWD=postgres", []).```
+
+6. When using the server on the the cloud alongside other apps on the same machine, or if priced by CPU cycles,
+add these lines to vm.args, to disable busy waits on the BEAM:
+
+```
++sbwt none
++sbwtdcpu none
++sbwtdio none
+```

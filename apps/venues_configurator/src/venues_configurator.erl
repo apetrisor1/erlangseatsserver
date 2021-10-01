@@ -28,8 +28,8 @@ start(_Type, _Args) ->
 				dispatch => Dispatch
 			},
             middlewares => [
-				cowboy_router,
 				ca_cowboy_middleware,
+				cowboy_router,
 				authorization, % Choice of authentication strategy is done here
 				cowboy_handler
 			]

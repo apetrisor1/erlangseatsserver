@@ -32,13 +32,13 @@ router(<<"GET">>, Req0, State) ->
     BindingsId = maps:get(userId, Bindings, notProvided),
 
     case get_id_from_bindings(BindingsId, Req0) of
-        <<>> -> error_responses:respond_400(Req0);
-        UserId    ->  VenuesOfUserAsJson = jiffy:encode(
+        <<>>   -> error_responses:respond_400(Req0);
+        UserId -> VenuesOfUserAsJson = jiffy:encode(
                     venues_service:view(
-                        venues_service:populate(
-                            venues_service:find(#{ owner_id => UserId }),
-                            seats
-                        )
+                        % venues_service:populate(
+                            venues_service:find(#{ owner_id => UserId })
+                            % seats
+                        % )
                     )
                 ),
 

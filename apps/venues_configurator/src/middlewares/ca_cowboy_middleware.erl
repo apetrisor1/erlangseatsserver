@@ -29,12 +29,13 @@ set_headers(Headers, Req) ->
 					 ReqWithHeader
 				 end, Req, Headers),
     {ok, ReqWithHeaders}.
-    
 
 set_cors_headers(Req) ->
-    Headers = [{<<"access-control-allow-origin">>, <<"*">>},
-	       {<<"access-control-allow-methods">>, <<"POST, GET, OPTIONS">>},
-	       {<<"access-control-allow-headers">>, <<"Origin, X-Requested-With, Content-Type, Accept, Authorization">>},
-	       {<<"access-control-max-age">>, <<"1000">>}],
+    Headers = [
+		{<<"access-control-allow-origin">>, <<"*">>},
+		{<<"access-control-allow-methods">>, <<"POST, GET, PUT, PATCH, OPTIONS">>},
+		{<<"access-control-allow-headers">>, <<"Origin, X-Requested-With, Content-Type, Accept, Authorization">>},
+		{<<"access-control-max-age">>, <<"1000">>}
+	],
     {ok, Req2} = set_headers(Headers, Req),
     {ok, Req2}.

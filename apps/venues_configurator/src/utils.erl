@@ -64,6 +64,8 @@ get_list_as_csv() ->
     fun
         (Value, Acc) when is_binary(Value)->
             Acc ++ binary_to_list(Value) ++ ",";
+        (Value, Acc) when is_number(Value) ->
+            Acc ++ integer_to_list(Value) ++ ",";
         (Value, Acc) ->
             Acc ++ Value ++ ","
     end.

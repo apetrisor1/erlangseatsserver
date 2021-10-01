@@ -2,12 +2,17 @@
 
 -export([
     turn_data_into_maps/1,
+    first_part_of_DELETE/1,
+    next_part_of_DELETE/2,
     first_part_of_SELECT/1,
+    first_part_of_SELECT_ID/1,
     last_part_of_SELECT/1,
     limit_one_SELECT/0,
     first_part_of_INSERT/1,
     last_part_of_INSERT_MAP/1,
     last_part_of_INSERT_LIST/2,
+    first_part_of_UPDATE/1,
+    next_part_of_UPDATE/1,
     last_part_RETURNING_ALL/0
 ]).
 
@@ -50,6 +55,9 @@ map_from_keys_and_tuple([H|T], Tuple, Acc0, Counter) ->
 first_part_of_SELECT(Collection) ->
     utils:interpolate_variables_in_string("SELECT * FROM ~s", [Collection]).
 
+first_part_of_SELECT_ID(Collection) ->
+    utils:interpolate_variables_in_string("SELECT id FROM ~s", [Collection]).
+
 next_part_of_SELECT_string([]) ->
     "";
 next_part_of_SELECT_string([H1, H2]) ->
@@ -62,6 +70,15 @@ last_part_of_SELECT([H1, H2|T]) ->
 
 limit_one_SELECT() ->
     " limit 1".
+
+%%========================================================================
+%%                               DELETE
+%%========================================================================
+first_part_of_DELETE(Collection) ->
+    utils:interpolate_variables_in_string("DELETE FROM ~s", [Collection]).
+
+next_part_of_DELETE(Key, Operator) ->
+    utils:interpolate_variables_in_string("WHERE ~s ~s ", [Key, Operator]).
 
 %%========================================================================
 %%                               INSERT
@@ -94,6 +111,24 @@ last_part_of_INSERT_LIST(ColumnNamesList, RowsMatrix) ->
 
     utils:remove_trailing_coma(ColumnNamesQueryString) ++
     utils:remove_trailing_coma(RowsQueryString).
+%%========================================================================
+%%                               UPDATE
+%%========================================================================
+next_part_of_UPDATE_string([]) ->
+    "";
+next_part_of_UPDATE_string([H1, H2]) ->
+    utils:interpolate_variables_in_string(", ~s = '~s'", [utils:to_string(H1), utils:to_string(H2)]);
+next_part_of_UPDATE_string([H1, H2|T]) ->
+    next_part_of_UPDATE_string([H1, H2]) ++ next_part_of_UPDATE_string(T).
+
+first_part_of_UPDATE(Collection) ->
+    utils:interpolate_variables_in_string("UPDATE ~s", [Collection]).
+
+next_part_of_UPDATE([H1, H2|T]) ->
+  utils:interpolate_variables_in_string(" SET ~s = '~s'", [utils:to_string(H1), utils:to_string(H2)]) ++ next_part_of_UPDATE_string(T).
+
+% last_part_of_UPDATE(Collection, Query, Map) ->
+%     utils:interpolate_variables_in_string("UPDATE ~s ", [Collection]).
 
 %%========================================================================
 %%                               RETURNING
