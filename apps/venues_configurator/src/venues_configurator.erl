@@ -29,6 +29,7 @@ start(_Type, _Args) ->
 			},
             middlewares => [
 				cowboy_router,
+				ca_cowboy_middleware,
 				authorization, % Choice of authentication strategy is done here
 				cowboy_handler
 			]
