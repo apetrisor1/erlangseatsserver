@@ -41,8 +41,8 @@ put_venue(VenueId, Req0) ->
     Body  = jiffy:decode(RequestBody, [return_maps]),
 
     case venues_service:update_by_id(VenueId, Body) of
-        { '404', NotFoundCallback } ->
-            NotFoundCallback(Req0);
+        '404'->
+            error_responses:respond_404(Req0);
         Venue ->
             cowboy_req:reply(
                 200,

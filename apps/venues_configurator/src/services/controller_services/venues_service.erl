@@ -39,7 +39,7 @@ update_by_id(Id, Body) ->
 
     case venues_service:find_by_id(Id) of
         [] ->
-            {'404', fun(Req) -> error_responses:respond_404(Req) end};
+            '404';
         Venue ->
             Seats = seats_service:update_multiple_seats(Venue, SeatCoords),
             Venue1 = db:update_by_id(<<"venues">>, Id, BodyWithoutSeatCoords),
