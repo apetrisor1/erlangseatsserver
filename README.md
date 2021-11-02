@@ -1,7 +1,7 @@
 Install
 -------
 
-1. Get link Erlang to .deb binary file from https://www.erlang-solutions.com/downloads/
+1. Get the URL link to the Erlang/OTP .deb binary file from https://www.erlang-solutions.com/downloads/
 
 (Stick with release 23)
 ```
@@ -15,8 +15,10 @@ sudo apt-get install -f
 3. Install Docker Engine
 4. Install Docker Compose
 5. Install ubuntu ODBC driver (Erlang has an ODBC interface)
+```
 sudo apt-get install -y odbc-postgresql
 sudo apt-get install -y unixodbc-dev
+```
 
 6. Install rebar3
 ```
@@ -27,7 +29,6 @@ cd rebar3
 export PATH=$PATH:~/Workspace/rebar3
 cd ../erlangseatsserver
 ```
-
 
 Start Postgres
 --------------
