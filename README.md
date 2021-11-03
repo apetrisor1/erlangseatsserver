@@ -5,7 +5,7 @@ Install
 
 (Stick with release 23)
 ```
-curl <link> —output <filename>
+curl <link> —output erlanginstaller
 ```
 2. Install it
 ```
@@ -27,10 +27,12 @@ git clone https://github.com/erlang/rebar3.git
 cd rebar3
 ./bootstrap
 export PATH=$PATH:~/Workspace/rebar3
-cd ../erlangseatsserver
 ```
 
 7. Pull this repo (build in repo root)
+```
+cd ../erlangseatsserver
+```
 
 Start Postgres
 --------------
