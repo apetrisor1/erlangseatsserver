@@ -30,6 +30,8 @@ export PATH=$PATH:~/Workspace/rebar3
 cd ../erlangseatsserver
 ```
 
+7. Pull this repo (build in repo root)
+
 Start Postgres
 --------------
 
