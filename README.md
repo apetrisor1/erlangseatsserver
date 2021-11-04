@@ -108,6 +108,7 @@ Optionally, connect to it via terminal (we will do the DB migrations from this p
 Build & Start
 -------------
 
+    $ rebar3 update
     $ rebar3 shell
 
 When using the server on the the cloud alongside other apps on the same machine, or if priced by CPU cycles,
