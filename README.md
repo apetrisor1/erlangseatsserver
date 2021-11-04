@@ -1,6 +1,10 @@
 Install
 -------
 
+```
+apt-get -y update
+```
+
 1. Get the URL link to the Erlang/OTP .deb binary file from https://www.erlang-solutions.com/downloads/
 
 (Stick with release 23)
@@ -32,13 +36,13 @@ export PATH=$PATH:/Workspace
 
 7. Pull this repo (build in repo root)
 ```
-cd erlangseatsserver
+git clone https://github.com/apetrisor1/erlangseatsserver.git
 ```
 
 Start Postgres
 --------------
 
-1. Update /etc/odbcinst.ini with
+8. Update /etc/odbcinst.ini with
 ```
 [PostgreSQL ANSI]
 Description=PostgreSQL ODBC driver (ANSI version)
@@ -59,7 +63,7 @@ UsageCount=1
 Notice how the driver in this file points to the location in /usr/lib.
 The driver also gets the name declared in square brackets, to be used next.
 
-2. Update /etc/odbc.ini config file with:
+9. Update /etc/odbc.ini config file with:
 ```
 [ODBC Data Sources]
 erlang-db-data-source = "Postgresql database for my Erlang App"
@@ -82,7 +86,7 @@ https://erlang.org/doc/apps/odbc/getting_started.html
 For the value of DSN, you will use the name declared in 4.
 ```{ok, Ref} = odbc:connect("DSN=erlang-db-data-source;UID=postgres;PWD=postgres", []).```
 
-3. Start PostgreSQL via docker
+10. Start PostgreSQL via docker
 
 ```
     $ docker-compose -f docker-compose.yml up
@@ -98,7 +102,7 @@ Optionally, connect to it via terminal (we will do the DB migrations from this p
     $ psql -U postgress
 ```
 
-4. Do database migrations. (run the queries in: apps/venues_configurator/src/services/database_services/migrations.sql)
+11. Do database migrations. (run the queries in: apps/venues_configurator/src/services/database_services/migrations.sql)
 
 Build & Start
 -------------
