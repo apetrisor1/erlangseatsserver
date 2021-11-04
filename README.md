@@ -3,6 +3,7 @@ Install
 
 ```
 apt-get -y update
+sudo apt-get install build-essential
 ```
 
 1. Get the URL link to the Erlang/OTP .deb binary file from https://www.erlang-solutions.com/downloads/
