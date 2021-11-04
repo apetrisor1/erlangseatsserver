@@ -26,16 +26,13 @@ sudo apt-get install -y unixodbc-dev
 
 6. Install rebar3
 ```
-sudo apt-get install build-essential
-git clone https://github.com/erlang/rebar3.git
-cd rebar3
-./bootstrap
-export PATH=$PATH:~/Workspace/rebar3
+wget https://s3.amazonaws.com/rebar3/rebar3 && chmod +x rebar3
+export PATH=$PATH:/Workspace
 ```
 
 7. Pull this repo (build in repo root)
 ```
-cd ../erlangseatsserver
+cd erlangseatsserver
 ```
 
 Start Postgres
