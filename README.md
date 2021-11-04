@@ -12,6 +12,10 @@ curl <link> —output erlanginstaller
 sudo dpkg -i /absolute/path/to/deb/file
 sudo apt-get install -f
 ```
+May be needed
+```
+apt --fix-broken install
+```
 3. Install Docker Engine
 4. Install Docker Compose
 5. Install ubuntu ODBC driver (Erlang has an ODBC interface)
