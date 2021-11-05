@@ -1,4 +1,4 @@
--module(user).
+-module(user_controller).
 -export([
   init/2,
   allowed_methods/2,
