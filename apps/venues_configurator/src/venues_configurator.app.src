@@ -11,7 +11,8 @@
     cowboy,
     jiffy,
     jwerl,
-    mongodb
+    mongodb,
+    odbc
    ]},
   {env,[]},
   {modules, []},
