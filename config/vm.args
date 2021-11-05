@@ -1,6 +1,6 @@
--sname myserv
+-sname venues_configurator
 
--setcookie myserv_cookie
+-setcookie venues_configurator_cookie
 
 +K true
 +A30
