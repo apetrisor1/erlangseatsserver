@@ -9,6 +9,9 @@ dist/
 
 _build/
 
+terraform/instances/.terraform
+terraform/instances/.terraform.*
+
 # Compiled Java class files
 *.class
 

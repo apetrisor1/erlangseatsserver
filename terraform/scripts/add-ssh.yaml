@@ -1,0 +1,23 @@
+#cloud-config
+# Add groups to the system
+# Adds the ubuntu group with members 'root' and 'sys'
+# and the empty group hashicorp.
+groups:
+  - ubuntu: [root,sys]
+  - hashicorp
+
+# Add users to the system. Users are added after groups are added.
+users:
+  - default
+  - name: apetrisor
+    gecos: Adrian Petrisor
+    shell: /bin/bash
+    primary_group: hashicorp
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: users, admin
+    lock_passwd: false
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCj6LzR5uRvDziZwvZRsBJGwUBbddskx5Irpp/EbgXHmrV2EfB9QErEs9cswBbWnZ6UDkHrwp8nxtNiFR8GOADgXyJSlgJavvXf7s4V+S8lWxC2IOMlxSDpI7Pj76Wa26V4r+n3Zfl7Ub5NocDZ5TLKT+9XKoaDYr6mO+q/ixRJclqJxCVQVp+G2J3CDAEHiHYfUE8mxc68+KsoAT/5bRNGMd/iVHeeYAeELDtuv8nx+8YOLNTAQ5wQc72wuiA9b6CRWom/az4vY09hL9QgE9hh3EGWDjyeW8Q6HskbZfKUaQTlsTnW/XtNdvp3GFzTf6Yu7lVe1ynWiU2VECX91SsH
+
+packages:
+#  - golang-go
