@@ -7,11 +7,9 @@
    [kernel,
     stdlib,
     bcrypt,
-    bson,
     cowboy,
     jiffy,
     jwerl,
-    mongodb,
     odbc
    ]},
   {env,[]},
